@@ -21,5 +21,7 @@ public interface ClienteRepository extends JpaRepository<ClienteEntity,Long> {
     @Query("SELECT c FROM ClienteEntity c WHERE c.id=:id and c.estado = 'True' ")
     Optional<ClienteEntity> findByIdAndEstadoTrue(@Param("id") Long id);
 
+    Boolean existsByIdentificacion(String identificacion);
+
 
 }

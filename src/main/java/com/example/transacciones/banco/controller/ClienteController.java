@@ -11,38 +11,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/clientes")
 public class ClienteController {
     private ClienteService clienteService;
     public ClienteController(ClienteService clienteService){
         this.clienteService = clienteService;
     }
 
-    @GetMapping("/clientes")
+    @GetMapping
     public ResponseEntity<List<ClienteResponseDto>> clientes(){
         List<ClienteResponseDto> clientes = clienteService.encontrarTodosClientes();
         return ResponseEntity.ok(clientes);
     }
-    @GetMapping("/cliente/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> buscarCliente(@PathVariable Long id){
         ClienteResponseDto clienteResponseDto = clienteService.buscarPorId(id);
         return ResponseEntity.ok(clienteResponseDto);
     }
 
-    @PostMapping("/cliente")
+    @PostMapping
     public ResponseEntity<ClienteResponseDto> guardarCliente( @Valid @RequestBody ClienteRequestDto clienteRequestDto){
         ClienteResponseDto clienteNuevo = clienteService.guardarCliente(clienteRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteNuevo);
     }
 
-    @PutMapping("/cliente/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> actualizarCliente(@PathVariable Long id , @Valid @RequestBody ClienteRequestDto clienteRequestDto){
         ClienteResponseDto clienteResponseDto = clienteService.actualizarCliente(id,clienteRequestDto);
         return ResponseEntity.ok(clienteResponseDto);
 
     }
 
-    @DeleteMapping("/cliente/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarCliente(@PathVariable Long id){
         clienteService.eliminarCliente(id);
         return ResponseEntity.noContent().build();

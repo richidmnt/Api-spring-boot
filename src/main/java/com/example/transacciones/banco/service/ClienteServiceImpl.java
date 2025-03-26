@@ -2,9 +2,14 @@ package com.example.transacciones.banco.service;
 
 import com.example.transacciones.banco.Dto.ClienteRequestDto;
 import com.example.transacciones.banco.Dto.ClienteResponseDto;
+import com.example.transacciones.banco.exception.EntidadDuplicadaException;
+import com.example.transacciones.banco.exception.EntidadNotFoudException;
+import com.example.transacciones.banco.exception.PersistenciaException;
 import com.example.transacciones.banco.model.ClienteEntity;
 import com.example.transacciones.banco.repository.ClienteRepository;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,59 +18,90 @@ import java.util.List;
 public class ClienteServiceImpl implements ClienteService{
 
     private ClienteRepository clienteRepository;
+    private ModelMapper modelMapper;
 
-    public ClienteServiceImpl(ClienteRepository clienteRepository) {
+    public ClienteServiceImpl(ClienteRepository clienteRepository,ModelMapper modelMapper) {
         this.clienteRepository = clienteRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
     @Transactional
     public ClienteResponseDto guardarCliente(ClienteRequestDto clienteRequestDto) {
-        ClienteEntity clienteAguardar =  new ClienteEntity(clienteRequestDto.getNombre(),clienteRequestDto.getGenero(),clienteRequestDto.getEdad(),clienteRequestDto.getIdentificacion(),clienteRequestDto.getDireccion(),clienteRequestDto.getTelefono(),clienteRequestDto.getContrasenia(),clienteRequestDto.getEstado());
-        ClienteEntity clienteDto =  clienteRepository.save(clienteAguardar);
-        return  new ClienteResponseDto(clienteDto.getId(),clienteDto.getNombre(),clienteDto.getGenero(),clienteDto.getEdad(),clienteDto.getIdentificacion(),clienteDto.getDireccion(),clienteDto.getTelefono(),clienteDto.getEstado());
+        if(clienteRequestDto == null){
+            throw  new IllegalArgumentException("El cliente no puede ser nulo");
+        }
+        if(clienteRepository.existsByIdentificacion(clienteRequestDto.getIdentificacion())){
+            System.out.println("se ejecuta esto");
+            throw new EntidadDuplicadaException("Ya existe un cliente con esta identificación");
+        }
+
+        try{
+            ClienteEntity clienteEntity = modelMapper.map(clienteRequestDto,ClienteEntity.class);
+            return modelMapper.map(clienteRepository.save(clienteEntity),ClienteResponseDto.class);
+
+        } catch (DataAccessException e) {
+            throw new PersistenciaException("Error al guardar el cliente",e);
+        }
 
     }
     @Override
     @Transactional
     public ClienteResponseDto actualizarCliente(Long id, ClienteRequestDto clienteRequestDto) {
-        if(clienteRepository.existsById(id)){
-            ClienteEntity clienteActualizar =  new ClienteEntity(clienteRequestDto.getNombre(),clienteRequestDto.getGenero(),clienteRequestDto.getEdad(),clienteRequestDto.getIdentificacion(),clienteRequestDto.getDireccion(),clienteRequestDto.getTelefono(),clienteRequestDto.getContrasenia(),clienteRequestDto.getEstado());
-            ClienteEntity clienteEntity = clienteRepository.findById(id).orElseThrow(()->new RuntimeException("No se encontro el cliente con el id:"+ id));
-            clienteEntity.setNombre(clienteActualizar.getNombre());
-            clienteEntity.setGenero(clienteActualizar.getGenero());
-            clienteEntity.setEdad(clienteActualizar.getEdad());
-            clienteEntity.setIdentificacion(clienteActualizar.getIdentificacion());
-            clienteEntity.setDireccion(clienteActualizar.getDireccion());
-            clienteEntity.setTelefono(clienteActualizar.getTelefono());
-            clienteEntity.setContrasenia(clienteActualizar.getContrasenia());
-            clienteEntity.setEstado(clienteActualizar.getEstado());
-            clienteRepository.save(clienteEntity);
-            return  new ClienteResponseDto(clienteEntity.getId(),clienteEntity.getNombre(),clienteEntity.getGenero(),clienteEntity.getEdad(),clienteEntity.getIdentificacion(),clienteEntity.getDireccion(),clienteEntity.getTelefono(),clienteEntity.getEstado());
+            try{
+                ClienteEntity clienteActualizar = modelMapper.map(clienteRequestDto,ClienteEntity.class);
+                ClienteEntity clienteExistente = clienteRepository.findById(id).orElseThrow(()->new EntidadNotFoudException("No se encontro el cliente con el id:"+ id));
+                modelMapper.getConfiguration().setSkipNullEnabled(true);
+                modelMapper.map(clienteRequestDto, clienteExistente);
+                clienteRepository.save(clienteExistente);
+                return modelMapper.map(clienteExistente,ClienteResponseDto.class);
+            }catch (DataAccessException e){
+                throw  new PersistenciaException("Error al actualizar el cliente", e);
+            }
 
-        }
-        return null;
 
     }
 
     @Override
     public ClienteResponseDto buscarPorId(Long id) {
-        ClienteEntity clienteEntity = clienteRepository.findByIdAndEstadoTrue(id).orElseThrow(()->new RuntimeException("Este cliente no existe"));
-        return new ClienteResponseDto(clienteEntity.getId(),clienteEntity.getNombre(),clienteEntity.getGenero(),clienteEntity.getEdad(),clienteEntity.getIdentificacion(),clienteEntity.getDireccion(),clienteEntity.getTelefono(),clienteEntity.getEstado());
+        validateId(id);
+
+        try{
+            ClienteEntity clienteEntity = clienteRepository.findByIdAndEstadoTrue(id).orElseThrow(()->new EntidadNotFoudException("Este cliente no existe"));
+            return modelMapper.map(clienteEntity,ClienteResponseDto.class);
+        }catch (DataAccessException e){
+            throw  new PersistenciaException("Error de acceso a datos al buscar cliente con ID:" + id,e);
+        }
+
 
     }
 
     @Override
     @Transactional
     public void eliminarCliente(Long id) {
-        ClienteEntity clienteEntity = clienteRepository.findById(id).orElseThrow(()->new RuntimeException("Este cliente no existe"));
-        clienteEntity.desactivarCliente();
+        try{
+            validateId(id);
+            ClienteEntity clienteEntity = clienteRepository.findById(id).orElseThrow(()->new EntidadNotFoudException("Este cliente no existe"));
+            clienteEntity.desactivarCliente();
+        } catch (DataAccessException e) {
+            throw new PersistenciaException("Error al eliminar cliente",e);
+        }
 
     }
 
     @Override
     public List<ClienteResponseDto> encontrarTodosClientes() {
-        List<ClienteEntity> clientesEntity = clienteRepository.findClientesActivos();
-        return clientesEntity.stream().map((cliente)->new ClienteResponseDto(cliente.getId(),cliente.getNombre(),cliente.getGenero(),cliente.getEdad(),cliente.getIdentificacion(),cliente.getDireccion(),cliente.getTelefono(),cliente.getEstado())).toList();
+        try{
+            List<ClienteEntity> clientesExistentes = clienteRepository.findClientesActivos();
+            return clientesExistentes.stream().map((clienteExistente)->modelMapper.map(clienteExistente,ClienteResponseDto.class)).toList();
+        } catch (DataAccessException e) {
+            throw new PersistenciaException("Error al obtener clientes",e);
+        }
+    }
+
+    private void validateId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID inválido: " + id);
+        }
     }
 }
