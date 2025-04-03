@@ -1,12 +1,20 @@
 package com.example.transacciones.banco.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "cliente")
 @EqualsAndHashCode(callSuper = true)
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClienteEntity extends PersonaEntity{
 
     @Id
@@ -14,43 +22,9 @@ public class ClienteEntity extends PersonaEntity{
     private Long id;
     private String contrasenia;
     private String estado;
+    @OneToMany(mappedBy = "cliente" ,cascade = CascadeType.ALL )
+    private List<CuentaEntity> cuentaEntities = new ArrayList<>();
 
-    public ClienteEntity(String nombre, Genero genero, Short edad, String identificacion, String direccion, String telefono,String contrasenia,String estado) {
-        super(nombre, genero, edad, identificacion, direccion, telefono);
-        this.contrasenia = contrasenia;
-        this.estado = estado;
-    }
-    public ClienteEntity() {
-        super(); // Llama al constructor vacío de PersonaEntity
-    }
-
-
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public String getContrasenia() {
-        return contrasenia;
-    }
-
-    public void setContrasenia(String contrasenia) {
-        this.contrasenia = contrasenia;
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public void desactivarCliente(){
         this.estado = "False";

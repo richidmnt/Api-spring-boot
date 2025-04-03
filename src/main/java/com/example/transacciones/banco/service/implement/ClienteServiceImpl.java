@@ -1,4 +1,4 @@
-package com.example.transacciones.banco.service;
+package com.example.transacciones.banco.service.implement;
 
 import com.example.transacciones.banco.Dto.ClienteRequestDto;
 import com.example.transacciones.banco.Dto.ClienteResponseDto;
@@ -7,6 +7,7 @@ import com.example.transacciones.banco.exception.EntidadNotFoudException;
 import com.example.transacciones.banco.exception.PersistenciaException;
 import com.example.transacciones.banco.model.ClienteEntity;
 import com.example.transacciones.banco.repository.ClienteRepository;
+import com.example.transacciones.banco.service.ClienteService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ClienteServiceImpl implements ClienteService{
+public class ClienteServiceImpl implements ClienteService {
 
     private ClienteRepository clienteRepository;
     private ModelMapper modelMapper;
