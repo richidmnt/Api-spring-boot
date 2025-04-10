@@ -22,6 +22,6 @@ public interface ClienteRepository extends JpaRepository<ClienteEntity,Long> {
     Optional<ClienteEntity> findByIdAndEstadoTrue(@Param("id") Long id);
 
     Boolean existsByIdentificacion(String identificacion);
-
+    
 
 }

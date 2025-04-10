@@ -24,11 +24,15 @@ public class CuentaEntity {
     private TipoCuenta tipoCuenta;
     @Column(name = "saldo_inicial")
     private Double saldoInicial;
-    private String estado;
+    private boolean estado;
     @ManyToOne
     @JoinColumn(name = "cliente_id",nullable = false)
     private ClienteEntity cliente;
     @OneToMany(mappedBy = "cuenta",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<MovimientoEntity> movimientoEntities = new ArrayList<>();
+
+    public void desactivarCuenta(){
+        this.estado = false;
+    }
 
 }

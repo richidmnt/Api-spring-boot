@@ -33,7 +33,6 @@ public class ClienteServiceImpl implements ClienteService {
             throw  new IllegalArgumentException("El cliente no puede ser nulo");
         }
         if(clienteRepository.existsByIdentificacion(clienteRequestDto.getIdentificacion())){
-            System.out.println("se ejecuta esto");
             throw new EntidadDuplicadaException("Ya existe un cliente con esta identificación");
         }
 
