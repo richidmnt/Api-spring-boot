@@ -2,10 +2,9 @@ package com.example.transacciones.banco.service;
 
 import com.example.transacciones.banco.Dto.CuentaRequestDto;
 import com.example.transacciones.banco.Dto.CuentaResponseDto;
-import com.example.transacciones.banco.model.CuentaEntity;
+
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CuentaService {
     CuentaResponseDto obtenerCuentaPorId(Long id);

@@ -1,5 +1,6 @@
 package com.example.transacciones.banco.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class ClienteEntity extends PersonaEntity{
     private String contrasenia;
     private String estado;
     @OneToMany(mappedBy = "cliente" ,cascade = CascadeType.ALL )
+    @JsonIgnore
     private List<CuentaEntity> cuentaEntities = new ArrayList<>();
 
 

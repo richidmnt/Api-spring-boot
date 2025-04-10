@@ -26,7 +26,6 @@ public class CuentaRequestDto {
     @Min(value = 0, message = "El saldo inicial no puede ser negativo")
     private Double saldoInicial;
 
-    @NotBlank(message = "El estado es obligatorio")
     private boolean estado;
 
     @NotNull(message = "El cliente es obligatorio")

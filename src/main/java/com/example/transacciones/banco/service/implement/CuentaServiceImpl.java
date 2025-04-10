@@ -12,9 +12,10 @@ import com.example.transacciones.banco.service.CuentaService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class CuentaServiceImpl implements CuentaService {
     private  CuentaRepository cuentaRepository;
     private ClienteRepository clienteRepository;
@@ -47,11 +48,16 @@ public class CuentaServiceImpl implements CuentaService {
         }
         try{
             ClienteEntity clienteEntity = obtenerCliente(cuentaRequestDto.getClienteId());
-            CuentaEntity cuentaEntity = modelMapper.map(cuentaRequestDto,CuentaEntity.class);
+            CuentaEntity cuentaEntity = new CuentaEntity();
+            cuentaEntity.setNumeroCuenta(cuentaRequestDto.getNumeroCuenta());
+            cuentaEntity.setTipoCuenta(cuentaRequestDto.getTipoCuenta());
+            cuentaEntity.setEstado(cuentaRequestDto.isEstado());
+            cuentaEntity.setSaldoInicial(cuentaRequestDto.getSaldoInicial());
             cuentaEntity.setCliente(clienteEntity);
             return modelMapper.map(cuentaRepository.save(cuentaEntity),CuentaResponseDto.class);
         } catch (DataAccessException e) {
-            throw new PersistenciaException("Ocurrio un error al intentar guardar la cuenta",e);
+
+            throw new PersistenciaException("Ocurrio un error al guardar la cuenta"+e.getMessage(),e);
         }
 
     }

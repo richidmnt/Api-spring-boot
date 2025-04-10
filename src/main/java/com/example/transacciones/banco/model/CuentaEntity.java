@@ -20,7 +20,7 @@ public class CuentaEntity {
     @Column(name = "numero_cuenta", length = 10)
     private String numeroCuenta;
     @Column(name="tipo_cuenta")
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private TipoCuenta tipoCuenta;
     @Column(name = "saldo_inicial")
     private Double saldoInicial;
