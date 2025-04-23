@@ -93,6 +93,9 @@ public class ClienteServiceImpl implements ClienteService {
     public List<ClienteResponseDto> encontrarTodosClientes() {
         try{
             List<ClienteEntity> clientesExistentes = clienteRepository.findClientesActivos();
+            if (clientesExistentes.isEmpty()) {
+                throw new EntidadNotFoudException("No existen clientes activos.");
+            }
             return clientesExistentes.stream().map((clienteExistente)->modelMapper.map(clienteExistente,ClienteResponseDto.class)).toList();
         } catch (DataAccessException e) {
             throw new PersistenciaException("Error al obtener clientes",e);

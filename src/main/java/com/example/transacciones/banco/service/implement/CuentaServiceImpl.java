@@ -73,7 +73,10 @@ public class CuentaServiceImpl implements CuentaService {
             validateId(id);
             ClienteEntity clienteEntity = obtenerCliente(cuentaRequestDto.getClienteId());
             CuentaEntity cuentaExistente = obtenerCuenta(id);
-            modelMapper.map(cuentaRequestDto,cuentaExistente);
+            cuentaExistente.setNumeroCuenta(cuentaRequestDto.getNumeroCuenta());
+            cuentaExistente.setTipoCuenta(cuentaRequestDto.getTipoCuenta());
+            cuentaExistente.setEstado(cuentaRequestDto.isEstado());
+            cuentaExistente.setSaldoInicial(cuentaRequestDto.getSaldoInicial());
             cuentaExistente.setCliente(clienteEntity);
             CuentaEntity cuentaActualizada = cuentaRepository.save(cuentaExistente);
             return modelMapper.map(cuentaActualizada,CuentaResponseDto.class);

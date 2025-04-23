@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +59,7 @@ public class GlobalException {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> hamdleGlobalException(Exception ex, WebRequest webRequest){
+    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest webRequest){
         ErrorResponse error = new ErrorResponse(
                 "Error interneto del servidor.",
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -87,6 +89,17 @@ public class GlobalException {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NoHandlerFoundException ex, WebRequest request) {
+        System.out.println("Entró al handler de NoHandlerFoundException");
+        ErrorResponse error = new ErrorResponse(
+                "La URL que buscas no existe",
+                HttpStatus.NOT_FOUND.value(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
 }
