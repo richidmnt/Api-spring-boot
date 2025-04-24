@@ -30,7 +30,6 @@ public class CuentaEntity {
     private ClienteEntity cliente;
     @OneToMany(mappedBy = "cuenta",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<MovimientoEntity> movimientoEntities = new ArrayList<>();
-
     public void desactivarCuenta(){
         this.estado = false;
     }

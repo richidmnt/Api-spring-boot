@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface CuentaRepository extends JpaRepository<CuentaEntity,Long> {
     Optional<CuentaEntity> findByIdAndEstadoTrue(Long id);
     List<CuentaEntity> findByEstadoTrue();
-    List<CuentaEntity> findByClienteId(Long id);
+    List<CuentaEntity> findByClienteIdAndEstadoTrue(Long id);
 }

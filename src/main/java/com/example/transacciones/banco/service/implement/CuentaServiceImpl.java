@@ -113,7 +113,7 @@ public class CuentaServiceImpl implements CuentaService {
     @Override
     public List<CuentaResponseDto> obtenerCuentasPorCliente(Long id) {
         try{
-            List<CuentaEntity> cuentasClientes = cuentaRepository.findByClienteId(id);
+            List<CuentaEntity> cuentasClientes = cuentaRepository.findByClienteIdAndEstadoTrue(id);
             return cuentasClientes
                     .stream()
                     .map(cuenta -> modelMapper.map(cuenta,CuentaResponseDto.class))
@@ -135,4 +135,5 @@ public class CuentaServiceImpl implements CuentaService {
         return clienteRepository.findByIdAndEstadoTrue(id).orElseThrow(()-> new EntidadNotFoudException("No se encontro el cliente con el id: "+id));
 
     }
+
 }
