@@ -80,12 +80,28 @@ public class MovimientoServiceImpl implements MovimientoService {
 
     @Override
     public List<MovimientoResponseDto> obtenerMovimientosPorCuenta(Long cuentaId) {
-        return List.of();
+        try{
+            List<MovimientoEntity> movimientos = movimientoRepository.findByCuentaId(cuentaId);
+            if(movimientos.isEmpty()){
+                return List.of();
+            }
+            return movimientos.stream().map((movimientoEntity)->modelMapper.map(movimientoEntity,MovimientoResponseDto.class)).toList();
+        }catch (DataAccessException e){
+            throw  new PersistenciaException("Error al obtener los movimientos",e);
+        }
     }
 
     @Override
     public List<MovimientoResponseDto> obtenerMovimientosPorCliente(Long clienteId) {
-        return List.of();
+       try{
+           List<MovimientoEntity> movimientos = movimientoRepository.findByCuentaClienteId(clienteId);
+           if(movimientos.isEmpty()){
+               return List.of();
+           }
+           return movimientos.stream().map((movimientoEntity)->modelMapper.map(movimientoEntity,MovimientoResponseDto.class)).toList();
+       }catch (DataAccessException e){
+           throw  new PersistenciaException("Error al obtener los movimientos",e);
+       }
     }
 
     private CuentaEntity obtenerCuenta(Long id){
