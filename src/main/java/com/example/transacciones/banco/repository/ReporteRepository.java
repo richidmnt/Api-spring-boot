@@ -11,20 +11,25 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface ReporteRepository extends JpaRepository <MovimientoEntity,Long>{
-    @Query("SELECT new com.example.transacciones.bando.Dto.ReporteDto(" +
+public interface ReporteRepository extends JpaRepository<MovimientoEntity,Long> {
+    @Query("SELECT new com.example.transacciones.banco.Dto.ReporteDto(" +
             "m.fecha, " +
-            "m.cuenta.cliente.nombre, " +
-            "m.cuenta.numeroCuenta, " +
-            "m.cuenta.tipoCuenta, " +
-            "m.cuenta.saldoInicial, " +
-            "m.cuenta.estado, " +
+            "c.cliente.nombre, " +
+            "c.numeroCuenta, " +
+            "CAST(c.tipoCuenta AS string), " +
+            "c.saldoInicial, " +
+            "CASE WHEN c.estado = true THEN true ELSE false END, " +
             "m.valor, " +
-            "m.saldo" +
-            "FROM Movimiento m " +
-            "WHERE m.cuenta.cliente.id = :clienteId AND m.fecha BETWEEN :desde AND :hasta")
-    List<ReporteDto> obtenerReporteMovimientos(@Param("clienteId") Long clienteId,
-                                               @Param("desde") LocalDate desde,
-                                               @Param("hasta") LocalDate hasta);
+            "m.saldo) " +
+            "FROM MovimientoEntity m " +
+            "INNER JOIN m.cuenta c " +
+            "WHERE c.cliente.id = :clienteId " +
+            "AND m.fecha BETWEEN :desde AND :hasta " +
+            "ORDER BY m.fecha")
+    List<ReporteDto> obtenerReporteMovimientos(
+            @Param("clienteId") Long clienteId,
+            @Param("desde") LocalDate desde,
+            @Param("hasta") LocalDate hasta
+    );
 
 }

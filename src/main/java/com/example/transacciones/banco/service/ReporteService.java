@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ReporteService {
 
-    List<ReporteDto> obtenerReportePorFechasYCliente(Long id, LocalDate desde, LocalDate hasta);
+    List<ReporteDto> obtenerReporte(Long id, LocalDate desde, LocalDate hasta);
 }
