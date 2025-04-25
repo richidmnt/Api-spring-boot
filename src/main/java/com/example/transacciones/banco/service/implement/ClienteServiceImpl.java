@@ -3,7 +3,7 @@ package com.example.transacciones.banco.service.implement;
 import com.example.transacciones.banco.Dto.ClienteRequestDto;
 import com.example.transacciones.banco.Dto.ClienteResponseDto;
 import com.example.transacciones.banco.exception.EntidadDuplicadaException;
-import com.example.transacciones.banco.exception.EntidadNotFoudException;
+import com.example.transacciones.banco.exception.EntidadNotFoundException;
 import com.example.transacciones.banco.exception.PersistenciaException;
 import com.example.transacciones.banco.model.ClienteEntity;
 import com.example.transacciones.banco.repository.ClienteRepository;
@@ -50,7 +50,7 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteResponseDto actualizarCliente(Long id, ClienteRequestDto clienteRequestDto) {
             try{
                 ClienteEntity clienteActualizar = modelMapper.map(clienteRequestDto,ClienteEntity.class);
-                ClienteEntity clienteExistente = clienteRepository.findById(id).orElseThrow(()->new EntidadNotFoudException("No se encontro el cliente con el id:"+ id));
+                ClienteEntity clienteExistente = clienteRepository.findById(id).orElseThrow(()->new EntidadNotFoundException("No se encontro el cliente con el id:"+ id));
                 modelMapper.getConfiguration().setSkipNullEnabled(true);
                 modelMapper.map(clienteRequestDto, clienteExistente);
                 clienteRepository.save(clienteExistente);
@@ -67,7 +67,7 @@ public class ClienteServiceImpl implements ClienteService {
         validateId(id);
 
         try{
-            ClienteEntity clienteEntity = clienteRepository.findByIdAndEstadoTrue(id).orElseThrow(()->new EntidadNotFoudException("Este cliente no existe"));
+            ClienteEntity clienteEntity = clienteRepository.findByIdAndEstadoTrue(id).orElseThrow(()->new EntidadNotFoundException("Este cliente no existe"));
             return modelMapper.map(clienteEntity,ClienteResponseDto.class);
         }catch (DataAccessException e){
             throw  new PersistenciaException("Error de acceso a datos al buscar cliente con ID:" + id,e);
@@ -81,7 +81,7 @@ public class ClienteServiceImpl implements ClienteService {
     public void eliminarCliente(Long id) {
         try{
             validateId(id);
-            ClienteEntity clienteEntity = clienteRepository.findById(id).orElseThrow(()->new EntidadNotFoudException("Este cliente no existe"));
+            ClienteEntity clienteEntity = clienteRepository.findById(id).orElseThrow(()->new EntidadNotFoundException("Este cliente no existe"));
             clienteEntity.desactivarCliente();
         } catch (DataAccessException e) {
             throw new PersistenciaException("Error al eliminar cliente",e);
@@ -94,7 +94,7 @@ public class ClienteServiceImpl implements ClienteService {
         try{
             List<ClienteEntity> clientesExistentes = clienteRepository.findClientesActivos();
             if (clientesExistentes.isEmpty()) {
-                throw new EntidadNotFoudException("No existen clientes activos.");
+                throw new EntidadNotFoundException("No existen clientes activos.");
             }
             return clientesExistentes.stream().map((clienteExistente)->modelMapper.map(clienteExistente,ClienteResponseDto.class)).toList();
         } catch (DataAccessException e) {

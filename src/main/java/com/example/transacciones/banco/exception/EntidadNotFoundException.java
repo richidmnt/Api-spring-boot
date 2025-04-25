@@ -1,8 +1,8 @@
 package com.example.transacciones.banco.exception;
 
-public class EntidadNotFoudException extends RuntimeException{
+public class EntidadNotFoundException extends RuntimeException{
 
-    public EntidadNotFoudException(String message) {
+    public EntidadNotFoundException(String message) {
         super(message);
     }
 }

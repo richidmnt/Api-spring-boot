@@ -1,9 +1,8 @@
 package com.example.transacciones.banco.service.implement;
 
-import com.example.transacciones.banco.Dto.CuentaResponseDto;
 import com.example.transacciones.banco.Dto.MovimientoResponseDto;
 import com.example.transacciones.banco.Dto.MovimientoRequestDto;
-import com.example.transacciones.banco.exception.EntidadNotFoudException;
+import com.example.transacciones.banco.exception.EntidadNotFoundException;
 import com.example.transacciones.banco.exception.PersistenciaException;
 import com.example.transacciones.banco.model.CuentaEntity;
 import com.example.transacciones.banco.model.MovimientoEntity;
@@ -15,7 +14,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.crypto.Data;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -105,7 +103,7 @@ public class MovimientoServiceImpl implements MovimientoService {
     }
 
     private CuentaEntity obtenerCuenta(Long id){
-        return cuentaRepository.findByIdAndEstadoTrue(id).orElseThrow(()-> new EntidadNotFoudException("No se encontro la cuenta con el id:"+id));
+        return cuentaRepository.findByIdAndEstadoTrue(id).orElseThrow(()-> new EntidadNotFoundException("No se encontro la cuenta con el id:"+id));
     }
     private void verificarSaldoDispoble(Double saldoActual,MovimientoRequestDto movmientoRequestDto){
            if(saldoActual < movmientoRequestDto.getValor()){
@@ -114,13 +112,26 @@ public class MovimientoServiceImpl implements MovimientoService {
 
     }
 
-    private Double realizarRetiro(Double saldoActual,MovimientoRequestDto movimientoRequestDto){
-        verificarSaldoDispoble(saldoActual,movimientoRequestDto);
-        return  saldoActual - movimientoRequestDto.getValor();
-    }
+//    private Double realizarRetiro(Double saldoActual,MovimientoRequestDto movimientoRequestDto){
+//        verificarSaldoDispoble(saldoActual,movimientoRequestDto);
+//        return  saldoActual - movimientoRequestDto.getValor();
+//    }
+//
+//    private Double realizarDeposito(Double saldoActual,MovimientoRequestDto movimientoRequestDto){
+//        return saldoActual + movimientoRequestDto.getValor();
+//    }
 
-    private Double realizarDeposito(Double saldoActual,MovimientoRequestDto movimientoRequestDto){
-        return saldoActual + movimientoRequestDto.getValor();
+    private Double calcularNuevoSaldo(Double saldoActual,MovimientoRequestDto movimientoRequestDto,String tipoMovimiento){
+        switch (tipoMovimiento){
+            case "Deposito":
+                return saldoActual + movimientoRequestDto.getValor();
+            case "Retiro":{
+                verificarSaldoDispoble(saldoActual,movimientoRequestDto);
+                return saldoActual - movimientoRequestDto.getValor();
+            }
+            default:
+                throw new IllegalArgumentException("Tipo de movimiento no reconocido");
+        }
     }
 
     private MovimientoEntity crearMovimiento(MovimientoRequestDto movimientoRequestDto, CuentaEntity cuentaExistente,String tipoMovimiento){
@@ -130,15 +141,10 @@ public class MovimientoServiceImpl implements MovimientoService {
         movimientoEntity.setValor(movimientoRequestDto.getValor());
         movimientoEntity.setCuenta(cuentaExistente);
         Double saldoActual = calcularSaldoActual(cuentaExistente);
-        if(tipoMovimiento.equals("Deposito")){
-            Double nuevoSaldo = realizarDeposito(saldoActual,movimientoRequestDto);
-            movimientoEntity.setSaldo(nuevoSaldo);
-            return movimientoEntity;
-        }else{
-            Double nuevoSaldo = realizarRetiro(saldoActual,movimientoRequestDto);
-            movimientoEntity.setSaldo(nuevoSaldo);
-            return movimientoEntity;
-        }
+        Double nuevoSaldo = calcularNuevoSaldo(saldoActual,movimientoRequestDto,tipoMovimiento);
+        movimientoEntity.setSaldo(nuevoSaldo);
+        return movimientoEntity;
+
     }
 
     private Double calcularSaldoActual(CuentaEntity cuenta) {
@@ -148,6 +154,8 @@ public class MovimientoServiceImpl implements MovimientoService {
         }
         return movimientos.get(movimientos.size() - 1).getSaldo();
     }
+
+
 
 
 }

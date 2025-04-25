@@ -2,7 +2,7 @@ package com.example.transacciones.banco.service.implement;
 
 import com.example.transacciones.banco.Dto.CuentaRequestDto;
 import com.example.transacciones.banco.Dto.CuentaResponseDto;
-import com.example.transacciones.banco.exception.EntidadNotFoudException;
+import com.example.transacciones.banco.exception.EntidadNotFoundException;
 import com.example.transacciones.banco.exception.PersistenciaException;
 import com.example.transacciones.banco.model.ClienteEntity;
 import com.example.transacciones.banco.model.CuentaEntity;
@@ -128,11 +128,11 @@ public class CuentaServiceImpl implements CuentaService {
         }
     }
     private CuentaEntity obtenerCuenta(Long id){
-        return  cuentaRepository.findByIdAndEstadoTrue(id).orElseThrow(()-> new EntidadNotFoudException("No se encontro el cliente con el id:"+id));
+        return  cuentaRepository.findByIdAndEstadoTrue(id).orElseThrow(()-> new EntidadNotFoundException("No se encontro el cliente con el id:"+id));
 
     }
     private ClienteEntity obtenerCliente(Long id){
-        return clienteRepository.findByIdAndEstadoTrue(id).orElseThrow(()-> new EntidadNotFoudException("No se encontro el cliente con el id: "+id));
+        return clienteRepository.findByIdAndEstadoTrue(id).orElseThrow(()-> new EntidadNotFoundException("No se encontro el cliente con el id: "+id));
 
     }
 

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +46,8 @@ public class GlobalException {
 
     }
 
-    @ExceptionHandler(EntidadNotFoudException.class)
-    public ResponseEntity<ErrorResponse>  handleEntidadNotFound(EntidadNotFoudException ex, WebRequest webRequest){
+    @ExceptionHandler(EntidadNotFoundException.class)
+    public ResponseEntity<ErrorResponse>  handleEntidadNotFound(EntidadNotFoundException ex, WebRequest webRequest){
         ErrorResponse error = new ErrorResponse(
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
